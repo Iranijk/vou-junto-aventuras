@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -61,7 +62,15 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
-				}
+				},
+				// Nossa paleta personalizada
+				aventura: {
+					verde: '#2C5F2D',
+					verdeclaro: '#97BC62',
+					terra: '#AA8976',
+					areia: '#F2E8C6',
+					laranja: '#FF9800',
+				},
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
@@ -89,6 +98,9 @@ export default {
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
 				'accordion-up': 'accordion-up 0.2s ease-out'
+			},
+			backgroundImage: {
+				'hero-pattern': "url('/hero-bg.jpg')",
 			}
 		}
 	},
