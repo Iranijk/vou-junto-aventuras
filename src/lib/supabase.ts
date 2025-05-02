@@ -1,16 +1,17 @@
 
 import { createClient } from '@supabase/supabase-js';
 
-// Get the environment variables or use default values for testing
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
+// Use the provided API ID to construct the Supabase URL
+const apiId = 'bcutnqyipkilxfltzvbt';
+const supabaseUrl = `https://${apiId}.supabase.co`;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
 
-// Only log an error if we're in development and the variables are actually missing
-if (import.meta.env.DEV && (!supabaseUrl || !supabaseAnonKey)) {
-  console.error('Supabase URL and Anon Key must be set in environment variables');
+// Only log an error if we're in development and the anon key is missing
+if (import.meta.env.DEV && !supabaseAnonKey) {
+  console.error('Supabase Anon Key must be set in environment variables');
 }
 
-// Create the Supabase client with proper fallback handling
+// Create the Supabase client with the API ID URL
 export const supabase = createClient(
   supabaseUrl,
   supabaseAnonKey, 
