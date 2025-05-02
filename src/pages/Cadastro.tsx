@@ -4,7 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { Link, useNavigate } from 'react-router-dom';
-import { Mail, Lock, User } from 'lucide-react';
+import { Mail, Lock, User, Phone, MapPin } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 
 import { Button } from '@/components/ui/button';
@@ -23,6 +23,8 @@ import { Checkbox } from '@/components/ui/checkbox';
 const formSchema = z.object({
   nome: z.string().min(2, 'Nome deve ter pelo menos 2 caracteres'),
   email: z.string().email('Email inválido'),
+  telefone: z.string().min(10, 'Telefone inválido (mínimo 10 dígitos)').max(15, 'Telefone inválido (máximo 15 dígitos)'),
+  cep: z.string().length(8, 'CEP deve ter 8 dígitos'),
   password: z.string().min(6, 'Senha deve ter pelo menos 6 caracteres'),
   confirmPassword: z.string(),
   termos: z.boolean().refine(val => val === true, {
@@ -45,6 +47,8 @@ const Cadastro = () => {
     defaultValues: {
       nome: '',
       email: '',
+      telefone: '',
+      cep: '',
       password: '',
       confirmPassword: '',
       termos: false,
@@ -55,6 +59,8 @@ const Cadastro = () => {
     try {
       const userData = {
         nome: data.nome,
+        telefone: data.telefone,
+        cep: data.cep,
         avatar_url: '',
         tipo: 'usuario',
       };
@@ -131,6 +137,64 @@ const Cadastro = () => {
                   </FormItem>
                 )}
               />
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="telefone"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Telefone</FormLabel>
+                      <FormControl>
+                        <div className="relative">
+                          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <Phone className="h-5 w-5 text-gray-400" />
+                          </div>
+                          <Input 
+                            className="pl-10" 
+                            placeholder="(99) 99999-9999" 
+                            {...field} 
+                            onChange={(e) => {
+                              // Remove tudo que não for número
+                              const value = e.target.value.replace(/\D/g, '');
+                              field.onChange(value);
+                            }}
+                          />
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="cep"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>CEP</FormLabel>
+                      <FormControl>
+                        <div className="relative">
+                          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <MapPin className="h-5 w-5 text-gray-400" />
+                          </div>
+                          <Input 
+                            className="pl-10" 
+                            placeholder="00000-000" 
+                            {...field} 
+                            onChange={(e) => {
+                              // Remove tudo que não for número
+                              const value = e.target.value.replace(/\D/g, '');
+                              field.onChange(value);
+                            }}
+                          />
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
 
               <FormField
                 control={form.control}
