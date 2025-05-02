@@ -1,11 +1,33 @@
 
 import React, { useState } from 'react';
-import { Menu, X } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Menu, X, User, LogOut } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
+import { useAuth } from '@/contexts/AuthContext';
+import { useToast } from "@/hooks/use-toast";
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { user, signOut } = useAuth();
+  const navigate = useNavigate();
+  const { toast } = useToast();
+
+  const handleLogout = async () => {
+    try {
+      await signOut();
+      toast({
+        title: "Logout realizado",
+        description: "Você saiu do sistema com sucesso."
+      });
+      navigate('/');
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Erro ao sair",
+        description: error.message || "Ocorreu um erro ao tentar sair do sistema."
+      });
+    }
+  };
 
   return (
     <nav className="bg-aventura-verde text-white py-4 px-6 sticky top-0 z-50">
@@ -23,9 +45,23 @@ const Navbar = () => {
         </div>
 
         <div className="hidden md:block">
-          <Button className="bg-aventura-laranja hover:bg-amber-600 text-white">
-            Entrar / Cadastrar
-          </Button>
+          {user ? (
+            <div className="flex items-center gap-4">
+              <span className="text-white">{user.email}</span>
+              <Button 
+                className="bg-red-500 hover:bg-red-600 text-white"
+                onClick={handleLogout}
+              >
+                <LogOut size={16} className="mr-2" /> Sair
+              </Button>
+            </div>
+          ) : (
+            <Link to="/login">
+              <Button className="bg-aventura-laranja hover:bg-amber-600 text-white">
+                <User size={16} className="mr-2" /> Entrar / Cadastrar
+              </Button>
+            </Link>
+          )}
         </div>
 
         {/* Mobile menu button */}
@@ -68,9 +104,28 @@ const Navbar = () => {
             >
               Contato
             </Link>
-            <Button className="bg-aventura-laranja hover:bg-amber-600 text-white w-full">
-              Entrar / Cadastrar
-            </Button>
+            {user ? (
+              <>
+                <div className="text-white py-2 border-t border-aventura-verdeclaro">
+                  {user.email}
+                </div>
+                <Button 
+                  className="bg-red-500 hover:bg-red-600 text-white w-full"
+                  onClick={() => {
+                    handleLogout();
+                    setIsMenuOpen(false);
+                  }}
+                >
+                  <LogOut size={16} className="mr-2" /> Sair
+                </Button>
+              </>
+            ) : (
+              <Link to="/login" onClick={() => setIsMenuOpen(false)}>
+                <Button className="bg-aventura-laranja hover:bg-amber-600 text-white w-full">
+                  <User size={16} className="mr-2" /> Entrar / Cadastrar
+                </Button>
+              </Link>
+            )}
           </div>
         </div>
       )}

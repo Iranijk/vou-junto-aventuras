@@ -1,8 +1,12 @@
 
 import React from 'react';
 import { Button } from "@/components/ui/button";
+import { Link } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
 
 const Hero = () => {
+  const { user } = useAuth();
+
   return (
     <div className="relative bg-gradient-to-br from-aventura-verde to-aventura-verdeclaro text-white py-20 md:py-32">
       <div 
@@ -24,12 +28,25 @@ const Hero = () => {
             Conectando entusiastas de trilhas, off-road e viagens para compartilhar aventuras e dividir custos.
           </p>
           <div className="flex flex-col sm:flex-row gap-4">
-            <Button className="bg-aventura-laranja hover:bg-amber-600 text-white text-lg py-6 px-8">
-              Oferecer Carona
-            </Button>
-            <Button className="bg-white text-aventura-verde hover:bg-gray-100 text-lg py-6 px-8">
-              Encontrar Aventura
-            </Button>
+            {user ? (
+              <>
+                <Button className="bg-aventura-laranja hover:bg-amber-600 text-white text-lg py-6 px-8">
+                  <Link to="/ofertar-carona">Oferecer Carona</Link>
+                </Button>
+                <Button className="bg-white text-aventura-verde hover:bg-gray-100 text-lg py-6 px-8">
+                  <Link to="/encontrar-aventura">Encontrar Aventura</Link>
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button className="bg-aventura-laranja hover:bg-amber-600 text-white text-lg py-6 px-8">
+                  <Link to="/login">Oferecer Carona</Link>
+                </Button>
+                <Button className="bg-white text-aventura-verde hover:bg-gray-100 text-lg py-6 px-8">
+                  <Link to="/login">Encontrar Aventura</Link>
+                </Button>
+              </>
+            )}
           </div>
         </div>
       </div>
