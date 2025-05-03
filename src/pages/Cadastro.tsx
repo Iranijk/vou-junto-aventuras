@@ -4,7 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { Link, useNavigate } from 'react-router-dom';
-import { Mail, Lock, User, Phone, MapPin, Facebook, Instagram, Linkedin, Twitter } from 'lucide-react';
+import { Mail, Lock, User, Phone, MapPin, Facebook, Instagram, Linkedin, Twitter, InfoIcon } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 
 import { Button } from '@/components/ui/button';
@@ -26,6 +26,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+} from "@/components/ui/popover";
 
 const formSchema = z.object({
   nome: z.string().min(2, 'Nome deve ter pelo menos 2 caracteres'),
@@ -259,7 +264,32 @@ const Cadastro = () => {
                   name="social_media_url"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Link do perfil</FormLabel>
+                      <div className="flex items-center justify-between">
+                        <FormLabel>Link do perfil</FormLabel>
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <Button variant="ghost" size="icon" className="h-6 w-6 p-0">
+                              <InfoIcon className="h-4 w-4 text-gray-500" />
+                              <span className="sr-only">Instruções</span>
+                            </Button>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-80">
+                            <div className="space-y-2">
+                              <h4 className="font-medium text-sm">Como encontrar o link do seu perfil:</h4>
+                              <ol className="text-sm list-decimal pl-4 space-y-1">
+                                <li>Entre em sua rede social escolhida</li>
+                                <li>Vá até o seu perfil pessoal</li>
+                                <li>Copie a URL completa da barra de endereço</li>
+                                <li>Cole aqui no campo de link</li>
+                              </ol>
+                              <p className="text-xs text-muted-foreground mt-2">
+                                O link do perfil é necessário para verificação da veracidade do seu cadastro 
+                                e será mostrado aos participantes de suas aventuras.
+                              </p>
+                            </div>
+                          </PopoverContent>
+                        </Popover>
+                      </div>
                       <FormControl>
                         <div className="relative">
                           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
