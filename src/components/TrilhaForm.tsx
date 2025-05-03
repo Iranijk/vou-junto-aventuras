@@ -1,9 +1,8 @@
-
 import React from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
-import { Calendar, MapPin, Users, Jeep, Bike, Motorcycle } from 'lucide-react';
+import { Calendar, MapPin, Users, Bike, Car } from 'lucide-react';
 import { format } from "date-fns";
 import { useNavigate } from 'react-router-dom';
 import { useToast } from "@/hooks/use-toast";
@@ -118,13 +117,13 @@ const TrilhaForm = () => {
     const vehicle = form.watch('tipo_veiculo');
     switch (vehicle) {
       case 'jipe':
-        return <Jeep className="h-5 w-5 mr-2" />;
+        return <Car className="h-5 w-5 mr-2" />;
       case 'moto':
-        return <Motorcycle className="h-5 w-5 mr-2" />;
+        return <Car className="h-5 w-5 mr-2" />;
       case 'bicicleta':
         return <Bike className="h-5 w-5 mr-2" />;
       default:
-        return <Jeep className="h-5 w-5 mr-2" />;
+        return <Car className="h-5 w-5 mr-2" />;
     }
   };
 
@@ -149,13 +148,13 @@ const TrilhaForm = () => {
                 <SelectContent>
                   <SelectItem value="jipe">
                     <div className="flex items-center">
-                      <Jeep className="h-4 w-4 mr-2" />
+                      <Car className="h-4 w-4 mr-2" />
                       Jipe
                     </div>
                   </SelectItem>
                   <SelectItem value="moto">
                     <div className="flex items-center">
-                      <Motorcycle className="h-4 w-4 mr-2" />
+                      <Car className="h-4 w-4 mr-2" />
                       Moto
                     </div>
                   </SelectItem>
