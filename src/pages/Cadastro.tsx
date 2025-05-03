@@ -4,7 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { Link, useNavigate } from 'react-router-dom';
-import { Mail, Lock, User, Phone, MapPin } from 'lucide-react';
+import { Mail, Lock, User, Phone, MapPin, Facebook, Instagram, Linkedin, Twitter } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 
 import { Button } from '@/components/ui/button';
@@ -19,12 +19,21 @@ import {
 import { Input } from '@/components/ui/input';
 import { useAuth } from '@/contexts/AuthContext';
 import { Checkbox } from '@/components/ui/checkbox';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const formSchema = z.object({
   nome: z.string().min(2, 'Nome deve ter pelo menos 2 caracteres'),
   email: z.string().email('Email inválido'),
   telefone: z.string().min(10, 'Telefone inválido (mínimo 10 dígitos)').max(15, 'Telefone inválido (máximo 15 dígitos)'),
   cep: z.string().length(8, 'CEP deve ter 8 dígitos'),
+  social_media_type: z.enum(['facebook', 'instagram', 'linkedin', 'twitter']),
+  social_media_url: z.string().url('URL inválida. Insira uma URL completa (ex: https://...)'),
   password: z.string().min(6, 'Senha deve ter pelo menos 6 caracteres'),
   confirmPassword: z.string(),
   termos: z.boolean().refine(val => val === true, {
@@ -49,6 +58,8 @@ const Cadastro = () => {
       email: '',
       telefone: '',
       cep: '',
+      social_media_type: 'instagram',
+      social_media_url: '',
       password: '',
       confirmPassword: '',
       termos: false,
@@ -63,6 +74,8 @@ const Cadastro = () => {
         cep: data.cep,
         avatar_url: '',
         tipo: 'usuario',
+        social_media_type: data.social_media_type,
+        social_media_url: data.social_media_url,
       };
 
       await signUp(data.email, data.password, userData);
@@ -79,6 +92,23 @@ const Cadastro = () => {
         title: "Erro no cadastro",
         description: error.message || "Ocorreu um erro ao tentar criar sua conta.",
       });
+    }
+  };
+
+  // Helper function to get the appropriate social media icon
+  const getSocialMediaIcon = () => {
+    const socialMediaType = form.watch('social_media_type');
+    switch (socialMediaType) {
+      case 'facebook':
+        return <Facebook className="h-5 w-5 text-gray-400" />;
+      case 'instagram':
+        return <Instagram className="h-5 w-5 text-gray-400" />;
+      case 'linkedin':
+        return <Linkedin className="h-5 w-5 text-gray-400" />;
+      case 'twitter':
+        return <Twitter className="h-5 w-5 text-gray-400" />;
+      default:
+        return <Instagram className="h-5 w-5 text-gray-400" />;
     }
   };
 
@@ -187,6 +217,58 @@ const Cadastro = () => {
                               const value = e.target.value.replace(/\D/g, '');
                               field.onChange(value);
                             }}
+                          />
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <div className="space-y-4">
+                <FormField
+                  control={form.control}
+                  name="social_media_type"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Rede Social</FormLabel>
+                      <Select 
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Selecione uma rede social" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="facebook">Facebook</SelectItem>
+                          <SelectItem value="instagram">Instagram</SelectItem>
+                          <SelectItem value="linkedin">LinkedIn</SelectItem>
+                          <SelectItem value="twitter">Twitter</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="social_media_url"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Link do perfil</FormLabel>
+                      <FormControl>
+                        <div className="relative">
+                          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            {getSocialMediaIcon()}
+                          </div>
+                          <Input 
+                            className="pl-10" 
+                            placeholder="https://..." 
+                            {...field} 
                           />
                         </div>
                       </FormControl>
