@@ -1,13 +1,12 @@
-
 import React, { useEffect, useState } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
-import { Calendar, MapPin, Users, Phone } from 'lucide-react';
+import { Calendar, MapPin, Users, Phone, Image } from 'lucide-react';
 import { format } from "date-fns";
 import { useNavigate } from 'react-router-dom';
 import { useToast } from "@/hooks/use-toast";
-import { supabase } from '@/lib/supabase';
+import { supabase, uploadFile } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 
 import { Button } from '@/components/ui/button';
@@ -18,6 +17,7 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
+  FormDescription,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -28,6 +28,11 @@ import {
 } from "@/components/ui/popover";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { cn } from '@/lib/utils';
+import { Label } from '@/components/ui/label';
+
+// Max file size: 5MB
+const MAX_FILE_SIZE = 5 * 1024 * 1024;
+const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
 
 const formSchema = z.object({
   nome_evento: z.string().min(2, 'Informe o nome do evento'),
@@ -45,6 +50,15 @@ const formSchema = z.object({
   telefone: z.string().min(10, 'Informe um telefone válido com DDD'),
   cep: z.string().min(8, 'Informe um CEP válido').max(9, 'CEP inválido'),
   nome: z.string().min(3, 'Informe seu nome completo'),
+  imagem: z.instanceof(File).optional()
+    .refine(
+      (file) => !file || file.size <= MAX_FILE_SIZE,
+      `Tamanho máximo de arquivo é 5MB.`
+    )
+    .refine(
+      (file) => !file || ACCEPTED_IMAGE_TYPES.includes(file.type),
+      "Formato aceito: .jpg, .jpeg, .png e .webp"
+    ),
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -55,6 +69,8 @@ const EventoForm = () => {
   const { toast } = useToast();
   const [userData, setUserData] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -110,6 +126,28 @@ const EventoForm = () => {
     checkAuth();
   }, [user, navigate, toast, form]);
 
+  // Handle image selection
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      form.setValue('imagem', file);
+      // Create a preview
+      const reader = new FileReader();
+      reader.onload = () => {
+        setSelectedImage(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const clearImage = () => {
+    form.setValue('imagem', undefined);
+    setSelectedImage(null);
+    // Reset the file input
+    const fileInput = document.getElementById('imagem') as HTMLInputElement;
+    if (fileInput) fileInput.value = '';
+  };
+
   const onSubmit = async (data: FormData) => {
     if (!user) {
       toast({
@@ -121,7 +159,15 @@ const EventoForm = () => {
       return;
     }
 
+    setIsSubmitting(true);
+
     try {
+      // Upload the image if provided
+      let imageUrl = null;
+      if (data.imagem) {
+        imageUrl = await uploadFile(data.imagem, 'aventuras', 'eventos');
+      }
+
       const { error } = await supabase
         .from('eventos')
         .insert({
@@ -138,6 +184,7 @@ const EventoForm = () => {
           telefone: data.telefone,
           cep: data.cep,
           nome: data.nome,
+          imagem_url: imageUrl,
         });
 
       if (error) throw error;
@@ -167,6 +214,7 @@ const EventoForm = () => {
       });
 
       form.reset();
+      setSelectedImage(null);
 
     } catch (error: any) {
       toast({
@@ -174,6 +222,8 @@ const EventoForm = () => {
         description: error.message || "Ocorreu um erro ao cadastrar o evento",
         variant: "destructive",
       });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -484,12 +534,78 @@ const EventoForm = () => {
           )}
         />
 
+        {/* Image Upload Field */}
+        <FormField
+          control={form.control}
+          name="imagem"
+          render={({ field: { onChange, value, ...fieldProps } }) => (
+            <FormItem>
+              <FormLabel>Imagem do Evento (opcional)</FormLabel>
+              <FormControl>
+                <div className="space-y-4">
+                  <div className="grid w-full max-w-sm items-center gap-1.5">
+                    <Label htmlFor="imagem" className="sr-only">Imagem</Label>
+                    <div className="flex items-center gap-2">
+                      <Button 
+                        type="button" 
+                        variant="outline" 
+                        onClick={() => document.getElementById('imagem')?.click()}
+                        className="w-full"
+                      >
+                        <Image className="mr-2 h-4 w-4" />
+                        Escolher Imagem
+                      </Button>
+                      {selectedImage && (
+                        <Button 
+                          type="button" 
+                          variant="ghost" 
+                          size="sm" 
+                          onClick={clearImage}
+                          className="text-red-500 hover:text-red-700"
+                        >
+                          Remover
+                        </Button>
+                      )}
+                    </div>
+                    <Input
+                      id="imagem"
+                      type="file"
+                      accept="image/png, image/jpeg, image/jpg, image/webp"
+                      className="hidden"
+                      onChange={(e) => {
+                        handleImageChange(e);
+                        onChange(e.target.files?.[0] || undefined);
+                      }}
+                      {...fieldProps}
+                    />
+                  </div>
+                  
+                  {/* Image Preview */}
+                  {selectedImage && (
+                    <div className="border rounded-md overflow-hidden">
+                      <img 
+                        src={selectedImage} 
+                        alt="Preview" 
+                        className="object-cover w-full h-48"
+                      />
+                    </div>
+                  )}
+                </div>
+              </FormControl>
+              <FormDescription>
+                Tamanho máximo: 5MB. Formatos aceitos: JPG, PNG, WEBP.
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
         <Button 
           type="submit" 
           className="w-full bg-aventura-laranja hover:bg-amber-600"
-          disabled={form.formState.isSubmitting}
+          disabled={isSubmitting}
         >
-          {form.formState.isSubmitting ? "Cadastrando..." : "Cadastrar Evento"}
+          {isSubmitting ? "Cadastrando..." : "Cadastrar Evento"}
         </Button>
       </form>
     </Form>
