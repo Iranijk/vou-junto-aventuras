@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
@@ -77,6 +78,42 @@ const OferecerCaronaForm = () => {
     },
   });
 
+  // Format phone number with mask
+  const formatPhoneNumber = (value: string) => {
+    if (!value) return value;
+    
+    // Remove all non-digits
+    const digits = value.replace(/\D/g, '');
+    
+    // Apply mask based on length
+    if (digits.length <= 2) {
+      return `(${digits}`;
+    } else if (digits.length <= 3) {
+      return `(${digits.slice(0, 2)}) ${digits.slice(2)}`;
+    } else if (digits.length <= 7) {
+      return `(${digits.slice(0, 2)}) ${digits.slice(2, 3)} ${digits.slice(3)}`;
+    } else if (digits.length <= 11) {
+      return `(${digits.slice(0, 2)}) ${digits.slice(2, 3)} ${digits.slice(3, 7)}-${digits.slice(7)}`;
+    }
+    
+    return `(${digits.slice(0, 2)}) ${digits.slice(2, 3)} ${digits.slice(3, 7)}-${digits.slice(7, 11)}`;
+  };
+  
+  // Format CEP with mask
+  const formatCEP = (value: string) => {
+    if (!value) return value;
+    
+    // Remove all non-digits
+    const digits = value.replace(/\D/g, '');
+    
+    // Apply mask
+    if (digits.length <= 5) {
+      return digits;
+    }
+    
+    return `${digits.slice(0, 5)}-${digits.slice(5, 8)}`;
+  };
+
   useEffect(() => {
     const checkAuth = async () => {
       if (!user) {
@@ -127,38 +164,41 @@ const OferecerCaronaForm = () => {
     }
 
     try {
+      // Normalize data before saving
+      const saveData = {
+        user_id: user.id,
+        modelo_carro: data.modelo_carro,
+        vagas: parseInt(data.vagas),
+        data: data.data.toISOString(),
+        hora: data.hora,
+        destino: data.destino,
+        ponto_encontro: data.ponto_encontro,
+        tipo: data.tipo,
+        observacoes: data.observacoes || null,
+        telefone: data.telefone.replace(/\D/g, ''), // Remove formatting
+        cep: data.cep.replace(/\D/g, ''), // Remove formatting
+        nome: data.nome,
+      };
+
       const { error } = await supabase
         .from('caronas')
-        .insert({
-          user_id: user.id,
-          modelo_carro: data.modelo_carro,
-          vagas: parseInt(data.vagas),
-          data: data.data.toISOString(),
-          hora: data.hora,
-          destino: data.destino,
-          ponto_encontro: data.ponto_encontro,
-          tipo: data.tipo,
-          observacoes: data.observacoes || null,
-          telefone: data.telefone,
-          cep: data.cep,
-          nome: data.nome,
-        });
+        .insert(saveData);
 
       if (error) throw error;
 
       // Update profile information if it's changed
       if (userData && (
         userData.nome !== data.nome || 
-        userData.telefone !== data.telefone || 
-        userData.cep !== data.cep
+        userData.telefone !== data.telefone.replace(/\D/g, '') || 
+        userData.cep !== data.cep.replace(/\D/g, '')
       )) {
         const { error: profileError } = await supabase
           .from('profiles')
           .upsert({
             id: user.id,
             nome: data.nome,
-            telefone: data.telefone,
-            cep: data.cep,
+            telefone: data.telefone.replace(/\D/g, ''),
+            cep: data.cep.replace(/\D/g, ''),
             updated_at: new Date().toISOString(),
           });
 
@@ -222,8 +262,8 @@ const OferecerCaronaForm = () => {
                       </div>
                       <Input 
                         className="pl-10" 
-                        placeholder="(00) 00000-0000" 
-                        {...field}
+                        placeholder="(00) 0 0000-0000" 
+                        value={formatPhoneNumber(field.value)}
                         onChange={(e) => {
                           // Format phone number
                           let value = e.target.value.replace(/\D/g, '');
@@ -248,7 +288,7 @@ const OferecerCaronaForm = () => {
                   <FormControl>
                     <Input 
                       placeholder="00000-000" 
-                      {...field} 
+                      value={formatCEP(field.value)}
                       onChange={(e) => {
                         // Format CEP
                         let value = e.target.value.replace(/\D/g, '');

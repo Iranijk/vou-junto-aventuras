@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
@@ -29,11 +30,19 @@ import {
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { cn } from '@/lib/utils';
 import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 // Max file size: 5MB
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
 const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
 
+// Modificando o schema para permitir vagas ilimitadas ou valor específico
 const formSchema = z.object({
   nome_evento: z.string().min(2, 'Informe o nome do evento'),
   descricao: z.string().min(10, 'Descreva o evento com pelo menos 10 caracteres'),
@@ -43,10 +52,8 @@ const formSchema = z.object({
   hora_volta: z.string().optional(),
   ponto_encontro: z.string().min(2, 'Informe o ponto de encontro'),
   local_evento: z.string().min(2, 'Informe o local do evento'),
-  vagas: z.string().min(1, 'Informe o número de vagas').refine(
-    (val) => !isNaN(Number(val)) && Number(val) > 0,
-    { message: "Deve ser um número maior que zero" }
-  ),
+  vagas_tipo: z.enum(['limitado', 'ilimitado']),
+  vagas: z.string().optional(),
   telefone: z.string().min(10, 'Informe um telefone válido com DDD'),
   cep: z.string().min(8, 'Informe um CEP válido').max(9, 'CEP inválido'),
   nome: z.string().min(3, 'Informe seu nome completo'),
@@ -59,7 +66,19 @@ const formSchema = z.object({
       (file) => !file || ACCEPTED_IMAGE_TYPES.includes(file.type),
       "Formato aceito: .jpg, .jpeg, .png e .webp"
     ),
-});
+}).refine(
+  (data) => {
+    // Se vagas_tipo for 'limitado', então vagas deve ser um número positivo
+    if (data.vagas_tipo === 'limitado') {
+      return data.vagas && !isNaN(Number(data.vagas)) && Number(data.vagas) > 0;
+    }
+    return true;
+  },
+  {
+    message: "Informe o número de vagas",
+    path: ["vagas"]
+  }
+);
 
 type FormData = z.infer<typeof formSchema>;
 
@@ -81,12 +100,49 @@ const EventoForm = () => {
       hora_volta: '',
       ponto_encontro: '',
       local_evento: '',
+      vagas_tipo: 'limitado',
       vagas: '',
       telefone: '',
       cep: '',
       nome: '',
     },
   });
+  
+  // Format phone number with mask
+  const formatPhoneNumber = (value: string) => {
+    if (!value) return value;
+    
+    // Remove all non-digits
+    const digits = value.replace(/\D/g, '');
+    
+    // Apply mask based on length
+    if (digits.length <= 2) {
+      return `(${digits}`;
+    } else if (digits.length <= 3) {
+      return `(${digits.slice(0, 2)}) ${digits.slice(2)}`;
+    } else if (digits.length <= 7) {
+      return `(${digits.slice(0, 2)}) ${digits.slice(2, 3)} ${digits.slice(3)}`;
+    } else if (digits.length <= 11) {
+      return `(${digits.slice(0, 2)}) ${digits.slice(2, 3)} ${digits.slice(3, 7)}-${digits.slice(7)}`;
+    }
+    
+    return `(${digits.slice(0, 2)}) ${digits.slice(2, 3)} ${digits.slice(3, 7)}-${digits.slice(7, 11)}`;
+  };
+  
+  // Format CEP with mask
+  const formatCEP = (value: string) => {
+    if (!value) return value;
+    
+    // Remove all non-digits
+    const digits = value.replace(/\D/g, '');
+    
+    // Apply mask
+    if (digits.length <= 5) {
+      return digits;
+    }
+    
+    return `${digits.slice(0, 5)}-${digits.slice(5, 8)}`;
+  };
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -125,6 +181,9 @@ const EventoForm = () => {
 
     checkAuth();
   }, [user, navigate, toast, form]);
+
+  // Watch vagas_tipo para mostrar/ocultar campo de vagas
+  const vagasTipo = form.watch('vagas_tipo');
 
   // Handle image selection
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -168,6 +227,9 @@ const EventoForm = () => {
         imageUrl = await uploadFile(data.imagem, 'aventuras', 'eventos');
       }
 
+      // Determinar número de vagas
+      const vagas = data.vagas_tipo === 'ilimitado' ? -1 : parseInt(data.vagas || '0');
+
       const { error } = await supabase
         .from('eventos')
         .insert({
@@ -180,11 +242,12 @@ const EventoForm = () => {
           hora_volta: data.hora_volta || null,
           ponto_encontro: data.ponto_encontro,
           local_evento: data.local_evento,
-          vagas: parseInt(data.vagas),
-          telefone: data.telefone,
-          cep: data.cep,
+          vagas: vagas,
+          telefone: data.telefone.replace(/\D/g, ''),
+          cep: data.cep.replace(/\D/g, ''),
           nome: data.nome,
           imagem_url: imageUrl,
+          vagas_ilimitadas: data.vagas_tipo === 'ilimitado',
         });
 
       if (error) throw error;
@@ -192,16 +255,16 @@ const EventoForm = () => {
       // Update profile information if it's changed
       if (userData && (
         userData.nome !== data.nome || 
-        userData.telefone !== data.telefone || 
-        userData.cep !== data.cep
+        userData.telefone !== data.telefone.replace(/\D/g, '') || 
+        userData.cep !== data.cep.replace(/\D/g, '')
       )) {
         const { error: profileError } = await supabase
           .from('profiles')
           .upsert({
             id: user.id,
             nome: data.nome,
-            telefone: data.telefone,
-            cep: data.cep,
+            telefone: data.telefone.replace(/\D/g, ''),
+            cep: data.cep.replace(/\D/g, ''),
             updated_at: new Date().toISOString(),
           });
 
@@ -268,15 +331,15 @@ const EventoForm = () => {
                       </div>
                       <Input 
                         className="pl-10" 
-                        placeholder="(00) 00000-0000" 
-                        {...field}
+                        placeholder="(00) 0 0000-0000" 
+                        value={formatPhoneNumber(field.value)}
                         onChange={(e) => {
                           // Format phone number
                           let value = e.target.value.replace(/\D/g, '');
                           if (value.length <= 11) {
                             field.onChange(value);
                           }
-                        }} 
+                        }}
                       />
                     </div>
                   </FormControl>
@@ -294,7 +357,7 @@ const EventoForm = () => {
                   <FormControl>
                     <Input 
                       placeholder="00000-000" 
-                      {...field} 
+                      value={formatCEP(field.value)}
                       onChange={(e) => {
                         // Format CEP
                         let value = e.target.value.replace(/\D/g, '');
@@ -505,34 +568,72 @@ const EventoForm = () => {
           />
         </div>
 
+        {/* Vagas - Tipo de vagas (limitado/ilimitado) */}
         <FormField
           control={form.control}
-          name="vagas"
+          name="vagas_tipo"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Vagas Disponíveis</FormLabel>
-              <FormControl>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Users className="h-5 w-5 text-gray-400" />
-                  </div>
-                  <Input 
-                    className="pl-10"
-                    type="number" 
-                    min="1"
-                    placeholder="Ex: 3" 
-                    {...field}
-                    onChange={(e) => {
-                      const value = e.target.value.replace(/\D/g, '');
-                      field.onChange(value);
-                    }}
-                  />
-                </div>
-              </FormControl>
+              <FormLabel>Tipo de Vagas</FormLabel>
+              <Select 
+                onValueChange={(value) => {
+                  field.onChange(value);
+                  // Se mudar para ilimitado, limpar o campo de vagas
+                  if (value === 'ilimitado') {
+                    form.setValue('vagas', '');
+                  }
+                }}
+                defaultValue={field.value}
+              >
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione o tipo de vagas" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  <SelectItem value="limitado">Limitado</SelectItem>
+                  <SelectItem value="ilimitado">Ilimitado</SelectItem>
+                </SelectContent>
+              </Select>
+              <FormDescription>
+                Escolha se deseja limitar o número de participantes
+              </FormDescription>
               <FormMessage />
             </FormItem>
           )}
         />
+
+        {/* Campo de vagas visível apenas se for limitado */}
+        {vagasTipo === 'limitado' && (
+          <FormField
+            control={form.control}
+            name="vagas"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Vagas Disponíveis</FormLabel>
+                <FormControl>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <Users className="h-5 w-5 text-gray-400" />
+                    </div>
+                    <Input 
+                      className="pl-10"
+                      type="number" 
+                      min="1"
+                      placeholder="Ex: 10" 
+                      {...field}
+                      onChange={(e) => {
+                        const value = e.target.value.replace(/\D/g, '');
+                        field.onChange(value);
+                      }}
+                    />
+                  </div>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        )}
 
         {/* Image Upload Field */}
         <FormField
