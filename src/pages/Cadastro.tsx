@@ -1,5 +1,4 @@
-
-import React from 'react';
+import React, { useEffect } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -71,6 +70,21 @@ const Cadastro = () => {
     },
   });
 
+  // Reset form values when component mounts
+  useEffect(() => {
+    form.reset({
+      nome: '',
+      email: '',
+      telefone: '',
+      cep: '',
+      social_media_type: 'instagram',
+      social_media_url: '',
+      password: '',
+      confirmPassword: '',
+      termos: false,
+    });
+  }, [form]);
+
   const onSubmit = async (data: FormData) => {
     try {
       const userData = {
@@ -98,6 +112,42 @@ const Cadastro = () => {
         description: error.message || "Ocorreu um erro ao tentar criar sua conta.",
       });
     }
+  };
+
+  // Format phone number with mask
+  const formatPhoneNumber = (value: string) => {
+    if (!value) return value;
+    
+    // Remove all non-digits
+    const digits = value.replace(/\D/g, '');
+    
+    // Apply mask based on length
+    if (digits.length <= 2) {
+      return `(${digits}`;
+    } else if (digits.length <= 3) {
+      return `(${digits.slice(0, 2)}) ${digits.slice(2)}`;
+    } else if (digits.length <= 7) {
+      return `(${digits.slice(0, 2)}) ${digits.slice(2, 3)} ${digits.slice(3)}`;
+    } else if (digits.length <= 11) {
+      return `(${digits.slice(0, 2)}) ${digits.slice(2, 3)} ${digits.slice(3, 7)}-${digits.slice(7)}`;
+    }
+    
+    return `(${digits.slice(0, 2)}) ${digits.slice(2, 3)} ${digits.slice(3, 7)}-${digits.slice(7, 11)}`;
+  };
+  
+  // Format CEP with mask
+  const formatCEP = (value: string) => {
+    if (!value) return value;
+    
+    // Remove all non-digits
+    const digits = value.replace(/\D/g, '');
+    
+    // Apply mask
+    if (digits.length <= 5) {
+      return digits;
+    }
+    
+    return `${digits.slice(0, 5)}-${digits.slice(5, 8)}`;
   };
 
   // Helper function to get the appropriate social media icon
@@ -187,12 +237,14 @@ const Cadastro = () => {
                           </div>
                           <Input 
                             className="pl-10" 
-                            placeholder="(99) 99999-9999" 
-                            {...field} 
+                            placeholder="(99) 9 9999-9999" 
+                            value={formatPhoneNumber(field.value)}
                             onChange={(e) => {
-                              // Remove tudo que não for número
+                              // Remove non-digits for storage but keep formatted for display
                               const value = e.target.value.replace(/\D/g, '');
-                              field.onChange(value);
+                              if (value.length <= 11) {
+                                field.onChange(value);
+                              }
                             }}
                           />
                         </div>
@@ -215,12 +267,14 @@ const Cadastro = () => {
                           </div>
                           <Input 
                             className="pl-10" 
-                            placeholder="00000-000" 
-                            {...field} 
+                            placeholder="99999-999" 
+                            value={formatCEP(field.value)}
                             onChange={(e) => {
-                              // Remove tudo que não for número
+                              // Remove non-digits for storage but keep formatted for display
                               const value = e.target.value.replace(/\D/g, '');
-                              field.onChange(value);
+                              if (value.length <= 8) {
+                                field.onChange(value);
+                              }
                             }}
                           />
                         </div>
