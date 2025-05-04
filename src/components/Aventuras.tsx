@@ -3,6 +3,7 @@ import React from 'react';
 import { Calendar, MapPin, Users, DollarSign } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Link } from 'react-router-dom';
 
 const aventuras = [
   {
@@ -104,9 +105,11 @@ const Aventuras = () => {
         </div>
         
         <div className="text-center mt-12">
-          <Button className="bg-aventura-laranja hover:bg-amber-600 text-white">
-            Ver Todas as Aventuras
-          </Button>
+          <Link to="/encontrar-aventuras">
+            <Button className="bg-aventura-laranja hover:bg-amber-600 text-white">
+              Ver Todas as Aventuras
+            </Button>
+          </Link>
         </div>
       </div>
     </section>

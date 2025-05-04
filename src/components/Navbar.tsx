@@ -40,7 +40,7 @@ const Navbar = () => {
         <div className="hidden md:flex space-x-6">
           <Link to="/" className="hover:text-aventura-areia transition-colors">Início</Link>
           <Link to="#como-funciona" className="hover:text-aventura-areia transition-colors">Como Funciona</Link>
-          <Link to="#aventuras" className="hover:text-aventura-areia transition-colors">Aventuras</Link>
+          <Link to="/encontrar-aventuras" className="hover:text-aventura-areia transition-colors">Encontrar Aventuras</Link>
           <Link to="#contato" className="hover:text-aventura-areia transition-colors">Contato</Link>
         </div>
 
@@ -91,11 +91,11 @@ const Navbar = () => {
               Como Funciona
             </Link>
             <Link 
-              to="#aventuras" 
+              to="/encontrar-aventuras" 
               className="hover:text-aventura-areia transition-colors"
               onClick={() => setIsMenuOpen(false)}
             >
-              Aventuras
+              Encontrar Aventuras
             </Link>
             <Link 
               to="#contato" 
