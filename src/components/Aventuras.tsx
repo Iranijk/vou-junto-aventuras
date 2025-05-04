@@ -107,7 +107,7 @@ const Aventuras = () => {
         <div className="text-center mt-12">
           <Link to="/encontrar-aventuras">
             <Button className="bg-aventura-laranja hover:bg-amber-600 text-white">
-              Ver Todas as Aventuras
+              Buscar Aventuras
             </Button>
           </Link>
         </div>

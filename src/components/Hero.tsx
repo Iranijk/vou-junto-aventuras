@@ -31,19 +31,19 @@ const Hero = () => {
             {user ? (
               <>
                 <Button className="bg-aventura-laranja hover:bg-amber-600 text-white text-lg py-6 px-8">
-                  <Link to="/ofertar-carona">Oferecer Carona</Link>
+                  <Link to="/ofertar-carona">Convidar</Link>
                 </Button>
                 <Button className="bg-white text-aventura-verde hover:bg-gray-100 text-lg py-6 px-8">
-                  <Link to="/encontrar-aventura">Encontrar Aventura</Link>
+                  <Link to="/encontrar-aventura">Buscar</Link>
                 </Button>
               </>
             ) : (
               <>
                 <Button className="bg-aventura-laranja hover:bg-amber-600 text-white text-lg py-6 px-8">
-                  <Link to="/login">Oferecer Carona</Link>
+                  <Link to="/login">Convidar</Link>
                 </Button>
                 <Button className="bg-white text-aventura-verde hover:bg-gray-100 text-lg py-6 px-8">
-                  <Link to="/login">Encontrar Aventura</Link>
+                  <Link to="/login">Buscar</Link>
                 </Button>
               </>
             )}
