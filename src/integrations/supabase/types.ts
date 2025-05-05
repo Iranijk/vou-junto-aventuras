@@ -9,7 +9,243 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      caronas: {
+        Row: {
+          cep: string
+          created_at: string
+          data: string
+          destino: string
+          hora: string
+          id: string
+          modelo_carro: string
+          nome: string
+          observacoes: string | null
+          ponto_encontro: string
+          telefone: string
+          tipo: string
+          user_id: string
+          vagas: number
+        }
+        Insert: {
+          cep: string
+          created_at?: string
+          data: string
+          destino: string
+          hora: string
+          id?: string
+          modelo_carro: string
+          nome: string
+          observacoes?: string | null
+          ponto_encontro: string
+          telefone: string
+          tipo: string
+          user_id: string
+          vagas: number
+        }
+        Update: {
+          cep?: string
+          created_at?: string
+          data?: string
+          destino?: string
+          hora?: string
+          id?: string
+          modelo_carro?: string
+          nome?: string
+          observacoes?: string | null
+          ponto_encontro?: string
+          telefone?: string
+          tipo?: string
+          user_id?: string
+          vagas?: number
+        }
+        Relationships: []
+      }
+      eventos: {
+        Row: {
+          cep: string
+          created_at: string
+          data_ida: string
+          data_volta: string | null
+          descricao: string
+          hora_ida: string
+          hora_volta: string | null
+          id: string
+          imagem_url: string | null
+          local_evento: string
+          nome: string
+          nome_evento: string
+          ponto_encontro: string
+          telefone: string
+          user_id: string
+          vagas: number
+          vagas_ilimitadas: boolean | null
+        }
+        Insert: {
+          cep: string
+          created_at?: string
+          data_ida: string
+          data_volta?: string | null
+          descricao: string
+          hora_ida: string
+          hora_volta?: string | null
+          id?: string
+          imagem_url?: string | null
+          local_evento: string
+          nome: string
+          nome_evento: string
+          ponto_encontro: string
+          telefone: string
+          user_id: string
+          vagas: number
+          vagas_ilimitadas?: boolean | null
+        }
+        Update: {
+          cep?: string
+          created_at?: string
+          data_ida?: string
+          data_volta?: string | null
+          descricao?: string
+          hora_ida?: string
+          hora_volta?: string | null
+          id?: string
+          imagem_url?: string | null
+          local_evento?: string
+          nome?: string
+          nome_evento?: string
+          ponto_encontro?: string
+          telefone?: string
+          user_id?: string
+          vagas?: number
+          vagas_ilimitadas?: boolean | null
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          cep: string | null
+          created_at: string
+          email: string | null
+          id: string
+          nome: string | null
+          telefone: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          cep?: string | null
+          created_at?: string
+          email?: string | null
+          id: string
+          nome?: string | null
+          telefone?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          cep?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          nome?: string | null
+          telefone?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      trilhas: {
+        Row: {
+          cep: string
+          created_at: string
+          data: string
+          hora: string
+          id: string
+          nivel_dificuldade: string
+          nome: string
+          nome_trilha: string
+          observacoes: string | null
+          ponto_encontro: string
+          telefone: string
+          tipo_veiculo: string
+          user_id: string
+          vagas: number
+        }
+        Insert: {
+          cep: string
+          created_at?: string
+          data: string
+          hora: string
+          id?: string
+          nivel_dificuldade: string
+          nome: string
+          nome_trilha: string
+          observacoes?: string | null
+          ponto_encontro: string
+          telefone: string
+          tipo_veiculo: string
+          user_id: string
+          vagas: number
+        }
+        Update: {
+          cep?: string
+          created_at?: string
+          data?: string
+          hora?: string
+          id?: string
+          nivel_dificuldade?: string
+          nome?: string
+          nome_trilha?: string
+          observacoes?: string | null
+          ponto_encontro?: string
+          telefone?: string
+          tipo_veiculo?: string
+          user_id?: string
+          vagas?: number
+        }
+        Relationships: []
+      }
+      viagens: {
+        Row: {
+          cep: string
+          cidade: string
+          created_at: string
+          data_fim: string
+          data_inicio: string
+          estado: string
+          id: string
+          nome: string
+          num_pessoas: number
+          observacoes: string | null
+          telefone: string
+          user_id: string
+        }
+        Insert: {
+          cep: string
+          cidade: string
+          created_at?: string
+          data_fim: string
+          data_inicio: string
+          estado: string
+          id?: string
+          nome: string
+          num_pessoas: number
+          observacoes?: string | null
+          telefone: string
+          user_id: string
+        }
+        Update: {
+          cep?: string
+          cidade?: string
+          created_at?: string
+          data_fim?: string
+          data_inicio?: string
+          estado?: string
+          id?: string
+          nome?: string
+          num_pessoas?: number
+          observacoes?: string | null
+          telefone?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

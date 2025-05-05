@@ -17,7 +17,7 @@ export interface AventuraItem {
 
 export function useAventuras(tipoFiltro?: string) {
   const [aventuras, setAventuras] = useState<AventuraItem[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
