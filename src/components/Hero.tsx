@@ -34,7 +34,7 @@ const Hero = () => {
                   <Link to="/ofertar-carona">Convidar</Link>
                 </Button>
                 <Button className="bg-white text-aventura-verde hover:bg-gray-100 text-lg py-6 px-8">
-                  <Link to="/encontrar-aventura">Buscar</Link>
+                  <Link to="/encontrar-aventuras">Buscar</Link>
                 </Button>
               </>
             ) : (
