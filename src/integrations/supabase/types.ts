@@ -120,6 +120,36 @@ export type Database = {
         }
         Relationships: []
       }
+      mensagens: {
+        Row: {
+          assunto: string
+          criado_em: string | null
+          email: string
+          id: string
+          mensagem: string
+          nome: string
+          telefone: string
+        }
+        Insert: {
+          assunto: string
+          criado_em?: string | null
+          email: string
+          id?: string
+          mensagem: string
+          nome: string
+          telefone: string
+        }
+        Update: {
+          assunto?: string
+          criado_em?: string | null
+          email?: string
+          id?: string
+          mensagem?: string
+          nome?: string
+          telefone?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           cep: string | null

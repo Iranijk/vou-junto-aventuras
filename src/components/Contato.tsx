@@ -1,11 +1,76 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Mail, Phone } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { supabase } from '@/lib/supabase';
+import { useToast } from '@/hooks/use-toast';
 
 const Contato = () => {
+  const { toast } = useToast();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formData, setFormData] = useState({
+    nome: '',
+    email: '',
+    assunto: '',
+    mensagem: '',
+    telefone: ''
+  });
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { id, value } = e.target;
+    setFormData(prev => ({ ...prev, [id]: value }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    // Validação básica
+    if (!formData.nome || !formData.email || !formData.assunto || !formData.mensagem || !formData.telefone) {
+      toast({
+        title: "Erro no formulário",
+        description: "Por favor, preencha todos os campos obrigatórios.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    try {
+      setIsSubmitting(true);
+      
+      const { error } = await supabase
+        .from('mensagens')
+        .insert([formData]);
+        
+      if (error) throw error;
+      
+      // Limpar formulário após sucesso
+      setFormData({
+        nome: '',
+        email: '',
+        assunto: '',
+        mensagem: '',
+        telefone: ''
+      });
+      
+      toast({
+        title: "Mensagem enviada!",
+        description: "Agradecemos pelo seu contato! Responderemos em breve.",
+      });
+      
+    } catch (error: any) {
+      console.error('Erro ao enviar mensagem:', error);
+      toast({
+        title: "Falha ao enviar",
+        description: error.message || "Ocorreu um erro ao enviar sua mensagem. Tente novamente mais tarde.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <section id="contato" className="py-20 bg-gray-50">
       <div className="container mx-auto px-6">
@@ -18,30 +83,71 @@ const Contato = () => {
         
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           <div>
-            <form className="space-y-6">
+            <form className="space-y-6" onSubmit={handleSubmit}>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label htmlFor="nome" className="block text-sm font-medium text-gray-700 mb-1">Nome</label>
-                  <Input id="nome" placeholder="Seu nome" className="w-full" />
+                  <Input 
+                    id="nome" 
+                    placeholder="Seu nome" 
+                    className="w-full" 
+                    value={formData.nome}
+                    onChange={handleChange}
+                  />
                 </div>
                 <div>
                   <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                  <Input id="email" type="email" placeholder="seu@email.com" className="w-full" />
+                  <Input 
+                    id="email" 
+                    type="email" 
+                    placeholder="seu@email.com" 
+                    className="w-full" 
+                    value={formData.email}
+                    onChange={handleChange}
+                  />
                 </div>
+              </div>
+              
+              <div>
+                <label htmlFor="telefone" className="block text-sm font-medium text-gray-700 mb-1">Telefone</label>
+                <Input 
+                  id="telefone" 
+                  type="tel" 
+                  placeholder="(99) 99999-9999" 
+                  className="w-full" 
+                  value={formData.telefone}
+                  onChange={handleChange}
+                />
               </div>
               
               <div>
                 <label htmlFor="assunto" className="block text-sm font-medium text-gray-700 mb-1">Assunto</label>
-                <Input id="assunto" placeholder="Assunto da mensagem" className="w-full" />
+                <Input 
+                  id="assunto" 
+                  placeholder="Assunto da mensagem" 
+                  className="w-full" 
+                  value={formData.assunto}
+                  onChange={handleChange}
+                />
               </div>
               
               <div>
                 <label htmlFor="mensagem" className="block text-sm font-medium text-gray-700 mb-1">Mensagem</label>
-                <Textarea id="mensagem" placeholder="Digite sua mensagem..." className="w-full h-32" />
+                <Textarea 
+                  id="mensagem" 
+                  placeholder="Digite sua mensagem..." 
+                  className="w-full h-32" 
+                  value={formData.mensagem}
+                  onChange={handleChange}
+                />
               </div>
               
-              <Button className="bg-aventura-verde hover:bg-aventura-verdeclaro text-white w-full py-6">
-                Enviar Mensagem
+              <Button 
+                type="submit"
+                className="bg-aventura-verde hover:bg-aventura-verdeclaro text-white w-full py-6"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? 'Enviando...' : 'Enviar Mensagem'}
               </Button>
             </form>
           </div>
