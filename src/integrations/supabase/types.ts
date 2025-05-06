@@ -248,7 +248,25 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      aventuras: {
+        Row: {
+          cep: string | null
+          contato_nome: string | null
+          contato_telefone: string | null
+          custo: string | null
+          data: string | null
+          descricao: string | null
+          id: string | null
+          imagem: string | null
+          local: string | null
+          ponto_encontro: string | null
+          tipo: string | null
+          titulo: string | null
+          user_id: string | null
+          vagas: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       [_ in never]: never
