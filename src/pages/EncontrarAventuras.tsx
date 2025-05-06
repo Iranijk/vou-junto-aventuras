@@ -53,7 +53,7 @@ const EncontrarAventuras = () => {
       let userCep = '';
       if (user && (filtro === 'cidade' || filtro === 'estado')) {
         const { data: userProfile } = await supabase
-          .from('perfis')
+          .from('profiles')
           .select('cep')
           .eq('id', user.id)
           .single();
