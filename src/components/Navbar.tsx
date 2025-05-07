@@ -29,25 +29,51 @@ const Navbar = () => {
     }
   };
 
+  const scrollToSection = (id: string) => {
+    const element = document.getElementById(id);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    } else {
+      // Se não encontrar o elemento (estamos em outra página), navegar para a página inicial com âncora
+      navigate('/#' + id);
+    }
+    // Fechar o menu móvel se estiver aberto
+    if (isMenuOpen) {
+      setIsMenuOpen(false);
+    }
+  };
+
   return (
-    <nav className="bg-aventura-verde text-white py-4 px-6 sticky top-0 z-50">
+    <nav className="bg-[#FEF7CD] text-aventura-verde py-4 px-6 sticky top-0 z-50">
       <div className="container mx-auto flex justify-between items-center">
         <div className="flex items-center">
-          <Link to="/" className="text-2xl font-bold">Vou Junto</Link>
+          <Link to="/" className="text-2xl font-bold">
+            <span className="text-[#F97316]">Vou</span> Junto
+          </Link>
         </div>
 
         {/* Desktop menu */}
         <div className="hidden md:flex space-x-6">
           <Link to="/" className="hover:text-aventura-areia transition-colors">Início</Link>
-          <Link to="#como-funciona" className="hover:text-aventura-areia transition-colors">Como Funciona</Link>
+          <button 
+            onClick={() => scrollToSection('como-funciona')}
+            className="text-aventura-verde hover:text-aventura-areia transition-colors"
+          >
+            Como Funciona
+          </button>
           <Link to="/encontrar-aventuras" className="hover:text-aventura-areia transition-colors">Buscar Aventuras</Link>
-          <Link to="#contato" className="hover:text-aventura-areia transition-colors">Contato</Link>
+          <button
+            onClick={() => scrollToSection('contato')}
+            className="text-aventura-verde hover:text-aventura-areia transition-colors"
+          >
+            Contato
+          </button>
         </div>
 
         <div className="hidden md:block">
           {user ? (
             <div className="flex items-center gap-4">
-              <span className="text-white">{user.email}</span>
+              <span className="text-aventura-verde">{user.email}</span>
               <Button 
                 className="bg-red-500 hover:bg-red-600 text-white"
                 onClick={handleLogout}
@@ -67,46 +93,44 @@ const Navbar = () => {
         {/* Mobile menu button */}
         <div className="md:hidden">
           <button onClick={() => setIsMenuOpen(!isMenuOpen)}>
-            {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
+            {isMenuOpen ? <X size={24} className="text-aventura-verde" /> : <Menu size={24} className="text-aventura-verde" />}
           </button>
         </div>
       </div>
 
       {/* Mobile menu */}
       {isMenuOpen && (
-        <div className="md:hidden bg-aventura-verde py-4 px-6">
+        <div className="md:hidden bg-[#FEF7CD] py-4 px-6">
           <div className="flex flex-col space-y-4">
             <Link 
               to="/" 
-              className="hover:text-aventura-areia transition-colors"
+              className="text-aventura-verde hover:text-aventura-areia transition-colors"
               onClick={() => setIsMenuOpen(false)}
             >
               Início
             </Link>
-            <Link 
-              to="#como-funciona" 
-              className="hover:text-aventura-areia transition-colors"
-              onClick={() => setIsMenuOpen(false)}
+            <button 
+              className="text-aventura-verde hover:text-aventura-areia transition-colors text-left"
+              onClick={() => scrollToSection('como-funciona')}
             >
               Como Funciona
-            </Link>
+            </button>
             <Link 
               to="/encontrar-aventuras" 
-              className="hover:text-aventura-areia transition-colors"
+              className="text-aventura-verde hover:text-aventura-areia transition-colors"
               onClick={() => setIsMenuOpen(false)}
             >
               Buscar Aventuras
             </Link>
-            <Link 
-              to="#contato" 
-              className="hover:text-aventura-areia transition-colors"
-              onClick={() => setIsMenuOpen(false)}
+            <button 
+              className="text-aventura-verde hover:text-aventura-areia transition-colors text-left"
+              onClick={() => scrollToSection('contato')}
             >
               Contato
-            </Link>
+            </button>
             {user ? (
               <>
-                <div className="text-white py-2 border-t border-aventura-verdeclaro">
+                <div className="text-aventura-verde py-2 border-t border-aventura-verdeclaro">
                   {user.email}
                 </div>
                 <Button 
