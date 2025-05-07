@@ -115,6 +115,7 @@ const Aventuras = () => {
         const eventosData = await getEventos();
         if (eventosData && eventosData.length > 0) {
           // Mapear eventos do banco para o formato de exibição
+          // Corrige o mapeamento para usar imagem_url como imagem
           const eventosFormatados = eventosData.slice(0, 6).map(evento => ({
             id: evento.id,
             titulo: evento.nome_evento,

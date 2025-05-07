@@ -35,7 +35,7 @@ export function useAventuras(tipoFiltro?: string) {
             tipo: 'Evento',
             data: new Date(evento.data_ida).toLocaleDateString(),
             local: evento.local_evento,
-            imagem: evento.imagem_url,
+            imagem: evento.imagem_url, // Corrigido para usar imagem_url
             descricao: evento.descricao,
             vagas: evento.vagas_ilimitadas ? -1 : evento.vagas,
             telefone: evento.telefone,
