@@ -13,8 +13,13 @@ const Index = () => {
     <div className="min-h-screen flex flex-col">
       <Navbar />
       <Hero />
-      <ComoFunciona />
+      <div className="container mx-auto px-6 py-8">
+        <h2 className="text-2xl md:text-3xl font-bold text-aventura-verde mb-6 text-center">
+          Últimos convites cadastrados
+        </h2>
+      </div>
       <Aventuras />
+      <ComoFunciona />
       <Apoiadores />
       <Contato />
       <Footer />

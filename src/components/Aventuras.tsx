@@ -25,7 +25,7 @@ const AventuraCard = ({ aventura }: { aventura: AventuraData }) => {
     <div className="bg-white rounded-lg overflow-hidden shadow-lg transition-transform hover:scale-105">
       <div className="h-48 overflow-hidden relative">
         <img 
-          src={aventura.imagem} 
+          src={aventura.imagem || "https://images.unsplash.com/photo-1533294455009-a6f974919072?ixlib=rb-4.0.3&q=85&fm=jpg&crop=entropy&cs=srgb"} 
           alt={aventura.titulo} 
           className="w-full h-full object-cover"
         />
@@ -55,7 +55,7 @@ const AventuraCard = ({ aventura }: { aventura: AventuraData }) => {
           {aventura.custo && (
             <div className="flex items-center text-gray-600">
               <DollarSign size={18} className="mr-2" />
-              <span>{aventura.custo} por pessoa</span>
+              <span>{aventura.custo}</span>
             </div>
           )}
         </div>
